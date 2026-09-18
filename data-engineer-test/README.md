@@ -110,7 +110,7 @@ notes.md                         top-level file: assumptions, matching trade-off
 ## Important notes
 
 - **Justify everything.** A cleaning choice, a matching rule, a sync mode, a DAG design — write down your reasoning. We're as interested in *how you think* as in the output.
-- **AI assistance is not recommended.** We want to assess your own engineering judgement. Using AI-generated code or analysis makes that impossible for us to evaluate, and it will show in the follow-up conversation.
+- **AI assistance is not allowed.** We want to assess your own engineering judgement. Using AI tools (ChatGPT, Copilot, Claude, or similar) to generate code or analysis is not permitted, and it will show in the follow-up conversation.
 
 ---
 

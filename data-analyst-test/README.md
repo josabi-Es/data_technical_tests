@@ -143,7 +143,7 @@ notes.md                        top-level file with decisions, assumptions, and 
 ## Important notes
 
 - **Justify everything.** For every decision you make — a cleaning choice, a model design, a metric you pick or discard — write down your reasoning. We are as interested in *how you think* as in the final output. An answer without justification will not be evaluated.
-- **AI assistance is not recommended.** We want to assess your own analytical thinking and SQL/dbt skills. Using AI-generated code or analysis makes it impossible for us to do that, and it will show in the follow-up conversation.
+- **AI assistance is not allowed.** We want to assess your own analytical thinking and SQL/dbt skills. Using AI tools (ChatGPT, Copilot, Claude, or similar) to generate code or analysis is not permitted, and it will show in the follow-up conversation.
 
 ---
 
