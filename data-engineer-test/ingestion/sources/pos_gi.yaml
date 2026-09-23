@@ -1,0 +1,14 @@
+{
+  "name": "File (CSV, JSON, Excel, Feather, Parquet)",
+  "workspaceId": "e7eb91a9-29bf-4b54-ab7f-581732f3e829",
+  "definitionId": "778daa7c-feaf-4db6-96f3-70fd645acc77",
+  "configuration": {
+    "dataset_name": "pos_gi",
+    "format": "csv",
+    "url": "https://192.168.0.14:8080/pos_gi.csv",
+    "provider": {
+      "storage": "HTTPS",
+      "user_agent": false
+    }
+  }
+}

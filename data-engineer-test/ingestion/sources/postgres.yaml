@@ -1,0 +1,24 @@
+{
+  "name": "Postgres",
+  "workspaceId": "e7eb91a9-29bf-4b54-ab7f-581732f3e829",
+  "definitionId": "decd338e-5647-4c0b-adf4-da0e75f5a750",
+  "configuration": {
+    "port": "${POSTGRES_PORT}",
+    "host": "${POSTGRES_HOST}",
+    "database": "${POSTGRES_DB}",
+    "password": "${POSTGRES_PASSWORD}",
+    "ssl_mode": {
+      "mode": "disable"
+    },
+    "username": "${POSTGRES_USER}",
+    "tunnel_method": {
+      "tunnel_method": "NO_TUNNEL"
+    },
+    "check_privileges": true,
+    "replication_method": {
+      "method": "Xmin"
+    },
+    "entra_service_principal_auth": false,
+    "checkpoint_target_interval_seconds": 300
+  }
+}
