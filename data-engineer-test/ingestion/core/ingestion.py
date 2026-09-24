@@ -41,6 +41,7 @@ def load_dataset(db, csv_path):
 
     try:
         db.create_raw_table(dataset, expected, spec["primary_key"])
+        db.default_airbyte_columns(dataset)  # airbyte tables
         db.load_rows(dataset, expected, rows)
     except Exception as e:
         return {"dataset": dataset, "status": "error", "stage": "load", "error": str(e)}
