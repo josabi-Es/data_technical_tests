@@ -1,6 +1,6 @@
 {
   "name": "Postgres",
-  "workspaceId": "e7eb91a9-29bf-4b54-ab7f-581732f3e829",
+  "workspaceId": "${AIRBYTE_WORKSPACE_ID}",
   "definitionId": "25c5221d-dce2-4163-ade9-739ef790f503",
   "configuration": {
     "schema": "raw",
