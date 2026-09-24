@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_pos_gi
+    description: One row per point of sale from gi.
+    columns:
+      - name: ext_id
+        description: Point of sale id, for example GI-090109. Text.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Name without extra spaces.
+      - name: name_normalized
+        description: Lower case name without S.L. or S.A., used to match.
+        data_tests:
+          - not_null
+      - name: street
+        description: Street, kept as it comes.
+      - name: door_number
+        description: Door number. Cast to integer.
+      - name: postal_code
+        description: Postal code. Kept as text.
+        data_tests:
+          - not_null
+      - name: city
+        description: City label, not used to match.
+      - name: is_active
+        description: True if the point of sale is active.
+
+unit_tests:
+  - name: test_stg_pos_gi_normalizes_name
+    description: Checks that normalize_string cleans spaces and S.L.
+    model: stg_pos_gi
+    given:
+      - input: source('raw', 'pos_gi')
+        rows:
+          - {ext_id: 'GI-1', point_name: 'Parafarma  Look  Norte  92', address_number: '5', is_active: 'True'}
+          - {ext_id: 'GI-2', point_name: 'FarmaVida Estación 3 S.L.', address_number: '7', is_active: 'False'}
+    expect:
+      rows:
+        - {ext_id: 'GI-1', name_normalized: 'parafarma look norte 92'}
+        - {ext_id: 'GI-2', name_normalized: 'farmavida estación 3'}

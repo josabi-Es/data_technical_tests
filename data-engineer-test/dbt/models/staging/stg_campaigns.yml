@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_campaigns
+    description: One row per campaign, with real types.
+    columns:
+      - name: campaign_id
+        description: Campaign id, cast to integer.
+        data_tests:
+          - unique
+          - not_null
+      - name: project_id
+        description: Project of the campaign.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_campaigns_project_id
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+      - name: campaign_name
+        description: Campaign name, cleaned.
+        data_tests:
+          - not_null
+      - name: campaign_start_date
+        description: Start date. Cast to date.
+        data_tests:
+          - not_null
+      - name: campaign_end_date
+        description: End date, cast to date.
+        data_tests:
+          - not_null
+      - name: total_visits_planned
+        description: Planned number of visits. Cast to integer.
+      - name: created_at
+        description: Creation date. Only a date in raw.
+      - name: updated_at
+        description: Last update date. Only a date in raw.

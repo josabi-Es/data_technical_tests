@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_pos_omni
+    description: One row per point of sale from omni.
+    columns:
+      - name: intervention_point_id
+        description: Point of sale id. Cast to integer.
+        data_tests:
+          - unique
+          - not_null
+      - name: intervention_point_code
+        description: Code of the point of sale, for example PDV000001.
+      - name: name
+        description: Name, cleaned.
+      - name: name_normalized
+        description: Lower case name without S.L. or S.A., used to match.
+        data_tests:
+          - not_null
+      - name: address
+        description: Full address as it comes.
+      - name: street
+        description: Street part of the address.
+      - name: door_number
+        description: Part of the address after " Nº ", cast to integer.
+      - name: postal_code
+        description: Postal code, kept as text.
+        data_tests:
+          - not_null
+      - name: locality
+        description: Locality label, not used to match.
+      - name: province
+        description: Province, upper case.
+      - name: latitude
+        description: Latitude. Cast to numeric.
+      - name: longitude
+        description: Longitude. Cast to numeric.
+      - name: is_active
+        description: True if the point of sale is active.
+      - name: created_at
+        description: Creation date.
+      - name: updated_at
+        description: Last update date.

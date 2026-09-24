@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_workers
+    description: One row per field worker.
+    columns:
+      - name: employee_id
+        description: Worker id. Cast to integer.
+        data_tests:
+          - unique
+          - not_null
+      - name: employee_first_name
+        description: First name, cleaned.
+      - name: employee_active_status
+        description: True if the worker is active.
+      - name: employee_address_province
+        description: Province, upper case.
+      - name: employee_contract_type
+        description: Contract type, upper case.
+        data_tests:
+          - accepted_values:
+              name: accepted_values_stg_workers_employee_contract_type
+              arguments:
+                values: ['FIJO', 'EV90', 'OBRA', 'EV180', 'INDF']
+      - name: created_at
+        description: Creation date. Only a date in raw.
