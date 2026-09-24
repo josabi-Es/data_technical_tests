@@ -1,9 +1,37 @@
 {
-  "raw_projects": ["project_id", "client_code", "project_name", "created_at", "updated_at"],
-  "raw_campaigns": ["campaign_id", "project_id", "campaign_name", "campaign_start_date", "campaign_end_date", "total_visits_planned", "created_at", "updated_at"],
-  "raw_routes": ["route_id", "campaign_id", "route_start_date", "route_end_date", "route_status", "created_at"],
-  "raw_workers": ["employee_id", "employee_first_name", "employee_active_status", "employee_address_province", "employee_contract_type", "created_at"],
-  "raw_visits": ["visit_id", "intervention_point_id", "route_id", "campaign_id", "visit_date", "visit_status", "created_at", "updated_at"],
-  "pos_omni": ["intervention_point_id", "intervention_point_code", "intervention_point_name", "intervention_point_address", "intervention_point_province", "intervention_point_locality", "intervention_point_postal_code", "intervention_point_latitude", "intervention_point_longitude", "intervention_point_is_active", "created_at", "updated_at"],
-  "pos_gi": ["ext_id", "point_name", "address_street", "address_number", "address_city", "address_zip", "is_active"]
+  "raw_projects": {
+    "primary_key": "project_id",
+    "cursor": "updated_at",
+    "columns": ["project_id", "client_code", "project_name", "created_at", "updated_at"]
+  },
+  "raw_campaigns": {
+    "primary_key": "campaign_id",
+    "cursor": "updated_at",
+    "columns": ["campaign_id", "project_id", "campaign_name", "campaign_start_date", "campaign_end_date", "total_visits_planned", "created_at", "updated_at"]
+  },
+  "raw_routes": {
+    "primary_key": "route_id",
+    "cursor": null,
+    "columns": ["route_id", "campaign_id", "route_start_date", "route_end_date", "route_status", "created_at"]
+  },
+  "raw_workers": {
+    "primary_key": "employee_id",
+    "cursor": null,
+    "columns": ["employee_id", "employee_first_name", "employee_active_status", "employee_address_province", "employee_contract_type", "created_at"]
+  },
+  "raw_visits": {
+    "primary_key": "visit_id",
+    "cursor": "updated_at",
+    "columns": ["visit_id", "intervention_point_id", "route_id", "campaign_id", "visit_date", "visit_status", "created_at", "updated_at"]
+  },
+  "pos_omni": {
+    "primary_key": "intervention_point_id",
+    "cursor": "updated_at",
+    "columns": ["intervention_point_id", "intervention_point_code", "intervention_point_name", "intervention_point_address", "intervention_point_province", "intervention_point_locality", "intervention_point_postal_code", "intervention_point_latitude", "intervention_point_longitude", "intervention_point_is_active", "created_at", "updated_at"]
+  },
+  "pos_gi": {
+    "primary_key": "ext_id",
+    "cursor": null,
+    "columns": ["ext_id", "point_name", "address_street", "address_number", "address_city", "address_zip", "is_active"]
+  }
 }
