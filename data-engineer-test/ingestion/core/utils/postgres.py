@@ -13,11 +13,17 @@ class Postgres:
         with self.engine.connect() as conn:
             conn.execute(text("SELECT 1"))
 
-    def create_raw_table(self, table, columns):
+    def create_raw_table(self, table, columns, primary_key):
         cols_sql = ", ".join(f'"{c}" text' for c in columns)
         with self.engine.begin() as conn:
             conn.execute(text("CREATE SCHEMA IF NOT EXISTS raw"))
-            conn.execute(text(f'CREATE TABLE IF NOT EXISTS raw."{table}" ({cols_sql})'))
+            conn.execute(text(f'CREATE TABLE IF NOT EXISTS raw."{table}" ({cols_sql}, PRIMARY KEY ("{primary_key}"))'))
+            has_key = conn.execute(
+                text("select 1 from pg_constraint where conrelid = cast(:name as regclass) and contype = 'p'"),
+                {"name": f'raw."{table}"'},
+            ).first()
+            if not has_key:
+                conn.execute(text(f'ALTER TABLE raw."{table}" ADD PRIMARY KEY ("{primary_key}")'))
 
     def load_rows(self, table, columns, rows):
         placeholders = ", ".join(f":{c}" for c in columns)

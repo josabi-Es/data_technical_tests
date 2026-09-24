@@ -24,18 +24,28 @@ def load_dataset(db, csv_path):
     if dataset not in COLUMN_MAP:
         return {"dataset": dataset, "status": "error", "stage": "mapping", "error": "no column mapping defined for this dataset"}
 
-    expected = COLUMN_MAP[dataset]
+    spec = COLUMN_MAP[dataset]
+    expected = spec["columns"]
+    for field in ("primary_key", "cursor"):
+        if spec[field] is not None and spec[field] not in expected:
+            return {"dataset": dataset, "status": "error", "stage": "mapping", "error": f"{field} {spec[field]} is not a column"}
+
     actual, rows = read_csv(csv_path)
     if actual != expected:
         return {"dataset": dataset, "status": "error", "stage": "validation", "error": f"expected columns {expected}, got {actual}"}
 
+    keys = [row[expected.index(spec["primary_key"])] for row in rows]
+    repeated = len(keys) - len(set(keys))
+    if repeated:
+        return {"dataset": dataset, "status": "error", "stage": "validation", "error": f"primary key {spec['primary_key']} has {repeated} repeated values"}
+
     try:
-        db.create_raw_table(dataset, expected)
+        db.create_raw_table(dataset, expected, spec["primary_key"])
         db.load_rows(dataset, expected, rows)
     except Exception as e:
         return {"dataset": dataset, "status": "error", "stage": "load", "error": str(e)}
 
-    return {"dataset": dataset, "status": "ok", "rows": len(rows)}
+    return {"dataset": dataset, "status": "ok", "rows": len(rows), "pk_empty": keys.count("")}
 
 
 def main():
