@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: stg_visits
+    description: One row per visit.
+    columns:
+      - name: visit_id
+        description: Visit id. Cast to integer.
+        data_tests:
+          - unique
+          - not_null
+      - name: intervention_point_id
+        description: Point of sale of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_visits_intervention_point_id
+              arguments:
+                to: ref('stg_pos_omni')
+                field: intervention_point_id
+      - name: route_id
+        description: Route of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_visits_route_id
+              arguments:
+                to: ref('stg_routes')
+                field: route_id
+      - name: campaign_id
+        description: Campaign of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_visits_campaign_id
+              arguments:
+                to: ref('stg_campaigns')
+                field: campaign_id
+      - name: visit_date
+        description: Date of the visit. Cast to date.
+      - name: visit_status
+        description: Visit status, trimmed and in upper case.
+        data_tests:
+          - accepted_values:
+              name: accepted_values_stg_visits_visit_status
+              arguments:
+                values: ['OK', 'INCID', 'INFO', 'NOVIS']
+      - name: created_at
+        description: Creation date. Only a date in raw.
+      - name: updated_at
+        description: Last update date.
+        data_tests:
+          - not_null

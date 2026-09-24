@@ -1,0 +1,21 @@
+{
+  "name": "Postgres",
+  "workspaceId": "e7eb91a9-29bf-4b54-ab7f-581732f3e829",
+  "definitionId": "25c5221d-dce2-4163-ade9-739ef790f503",
+  "configuration": {
+    "schema": "raw",
+    "ssl": false,
+    "host": "${POSTGRES_HOST}",
+    "port": "${POSTGRES_PORT}",
+    "database": "postgres",
+    "password": "${POSTGRES_PASSWORD}",
+    "ssl_mode": {
+      "mode": "disable"
+    },
+    "username": "${POSTGRES_USER}",
+    "tunnel_method": {
+      "tunnel_method": "NO_TUNNEL"
+    },
+    "cdc_deletion_mode": "Hard delete"
+  }
+}

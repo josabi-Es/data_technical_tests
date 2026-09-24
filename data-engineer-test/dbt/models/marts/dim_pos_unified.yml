@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: dim_pos_unified
+    description: One row per real point of sale, joining omni and gi by name and postal code.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: pos_id
+        description: Key of the row, md5 of the omni id or else the gi id.
+        data_type: text
+        constraints:
+          - type: primary_key
+        data_tests:
+          - unique
+          - not_null
+      - name: intervention_point_id
+        description: Id in pos_omni. Null when the store is only in pos_gi.
+        data_type: integer
+        data_tests:
+          - unique
+      - name: ext_id
+        description: Id in pos_gi. Null when the store is only in pos_omni.
+        data_type: text
+        data_tests:
+          - unique
+      - name: name
+        description: Store name, from omni first.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: name_normalized
+        description: Normalized name used to match the two systems.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: street
+        description: Street.
+        data_type: text
+      - name: door_number
+        description: Door number.
+        data_type: integer
+      - name: postal_code
+        description: Postal code. Text.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: province
+        description: Province. Null for GI_ONLY.
+        data_type: text
+      - name: latitude
+        description: Latitude. Only pos_omni has it.
+        data_type: numeric(9,6)
+      - name: longitude
+        description: Longitude. Only pos_omni has it.
+        data_type: numeric(9,6)
+      - name: is_active
+        description: True if the store is active.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: match_status
+        description: MATCHED, OMNI_ONLY or GI_ONLY.
+        data_type: text
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: accepted_values_dim_pos_unified_match_status
+              arguments:
+                values: ['MATCHED', 'OMNI_ONLY', 'GI_ONLY']
+      - name: source_system
+        description: Where the store comes from, OMNI+GI, OMNI or GI.
+        data_type: text
+        data_tests:
+          - accepted_values:
+              name: accepted_values_dim_pos_unified_source_system
+              arguments:
+                values: ['OMNI+GI', 'OMNI', 'GI']
+      - name: match_rule
+        description: Match rule. Null when not matched.
+        data_type: text
+        data_tests:
+          - accepted_values:
+              name: accepted_values_dim_pos_unified_match_rule
+              arguments:
+                values: ['NAME_POSTAL_CODE', 'NAME_ADDRESS']
+      - name: confidence
+        description: Match confidence. Null when not matched.
+        data_type: numeric
+        data_tests:
+          - accepted_values:
+              name: accepted_values_dim_pos_unified_confidence
+              arguments:
+                values: [1.0, 0.8]
+                quote: false
+
+unit_tests:
+  - name: test_dim_pos_unified_match_status
+    description: Checks MATCHED, OMNI_ONLY and GI_ONLY.
+    model: dim_pos_unified
+    given:
+      - input: ref('stg_pos_omni')
+        rows:
+          - {intervention_point_id: 1, name: 'FarmaVida Estación 3', name_normalized: 'farmavida estación 3', street: 'Calle 1', door_number: 10, postal_code: '28001'}
+          - {intervention_point_id: 2, name: 'Vitalia Farma Centro 5', name_normalized: 'vitalia farma centro 5', street: 'Calle 2', door_number: 20, postal_code: '08001'}
+      - input: ref('stg_pos_gi')
+        rows:
+          - {ext_id: 'GI-1', name: 'FarmaVida Estación 3 S.L.', name_normalized: 'farmavida estación 3', street: 'Calle 1', door_number: 10, postal_code: '28001'}
+          - {ext_id: 'GI-2', name: 'Parafarma Look Norte 92', name_normalized: 'parafarma look norte 92', street: 'Calle 3', door_number: 30, postal_code: '46001'}
+          - {ext_id: 'GI-3', name: 'Dermapoint Plaza 149', name_normalized: 'dermapoint plaza 149', street: 'Calle 4', door_number: 40, postal_code: '08001'}
+    expect:
+      rows:
+        - {intervention_point_id: 1, ext_id: 'GI-1', match_status: 'MATCHED', source_system: 'OMNI+GI'}
+        - {intervention_point_id: 2, ext_id: null, match_status: 'OMNI_ONLY', source_system: 'OMNI'}
+        - {intervention_point_id: null, ext_id: 'GI-2', match_status: 'GI_ONLY', source_system: 'GI'}
+        - {intervention_point_id: null, ext_id: 'GI-3', match_status: 'GI_ONLY', source_system: 'GI'}
+  - name: test_dim_pos_unified_postal_code_typo
+    description: Checks the match when the postal code has a one digit typo.
+    model: dim_pos_unified
+    given:
+      - input: ref('stg_pos_omni')
+        rows:
+          - {intervention_point_id: 3, name: 'Mediplus Centro 118', name_normalized: 'mediplus centro 118', street: 'Calle 87', door_number: 55, postal_code: '41010'}
+          - {intervention_point_id: 4, name: 'Farmavida Sur 21', name_normalized: 'farmavida sur 21', street: 'Calle 31', door_number: 33, postal_code: '17496'}
+      - input: ref('stg_pos_gi')
+        rows:
+          - {ext_id: 'GI-4', name: 'Mediplus Centro 118', name_normalized: 'mediplus centro 118', street: 'Calle 87', door_number: 55, postal_code: '41009'}
+          - {ext_id: 'GI-5', name: 'Farmavida Sur 21', name_normalized: 'farmavida sur 21', street: 'Calle 31', door_number: 34, postal_code: '17495'}
+    expect:
+      rows:
+        - {intervention_point_id: 3, ext_id: 'GI-4', match_status: 'MATCHED', match_rule: 'NAME_ADDRESS'}
+        - {intervention_point_id: 4, ext_id: null, match_status: 'OMNI_ONLY', match_rule: null}
+        - {intervention_point_id: null, ext_id: 'GI-5', match_status: 'GI_ONLY', match_rule: null}

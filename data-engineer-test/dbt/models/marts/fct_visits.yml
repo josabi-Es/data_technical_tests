@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: fct_visits
+    description: One row per visit, loaded incrementally.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: visit_id
+        description: Visit id. Key of the incremental load.
+        data_type: integer
+        data_tests:
+          - unique
+          - not_null
+      - name: pos_id
+        description: Key of the point of sale in dim_pos_unified.
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_pos_id
+              arguments:
+                to: ref('dim_pos_unified')
+                field: pos_id
+      - name: intervention_point_id
+        description: Id of the point of sale in pos_omni.
+        data_type: integer
+      - name: route_id
+        description: Route of the visit.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: route_status
+        description: Route status. UNKNOWN when missing.
+        data_type: text
+        data_tests:
+          - accepted_values:
+              name: accepted_values_fct_visits_route_status
+              arguments:
+                values: ['OK', 'GRABADO', 'UNKNOWN']
+      - name: campaign_id
+        description: Campaign of the visit.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: campaign_name
+        description: Name of the campaign.
+        data_type: text
+      - name: project_id
+        description: Project of the campaign.
+        data_type: integer
+      - name: project_name
+        description: Name of the project.
+        data_type: text
+      - name: client_code
+        description: Client of the project.
+        data_type: text
+      - name: visit_date
+        description: Date of the visit.
+        data_type: date
+      - name: visit_status
+        description: Visit status. UNKNOWN when missing.
+        data_type: text
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: accepted_values_fct_visits_visit_status
+              arguments:
+                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
+      - name: created_at
+        description: Creation date.
+        data_type: date
+      - name: updated_at
+        description: Last update date. Used for the incremental load.
+        data_type: date
+        data_tests:
+          - not_null

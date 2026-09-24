@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - postgres
+
+  files:
+    image: python:3.12-slim
+    command: python -m http.server 8001 --directory /data
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data/raw:/data:ro
+
+  airflow:
+    build: ./airflow
+    image: airflow-local:3.1.5
+    command: standalone
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "${AIRFLOW_PORT:-8080}:8080"
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/state/airflow.db
+      AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_SECRET:?set AIRFLOW_SECRET in .env}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ALERT_TO: ${ALERT_TO:-}
+      AIRBYTE_CLIENT_ID: ${AIRBYTE_CLIENT_ID:-}
+      AIRBYTE_CLIENT_SECRET: ${AIRBYTE_CLIENT_SECRET:-}
+      AIRFLOW_CONN_SMTP_DEFAULT: '{"conn_type":"smtp","host":"smtp.gmail.com","port":587,"login":"${GMAIL_USER:-}","password":"${GMAIL_PASS:-}","extra":{"disable_ssl":true,"from_email":"${GMAIL_USER:-}"}}'
+      DBT_PROFILES_DIR: /opt/airflow/dbt
+      DBT_TARGET_PATH: /tmp/dbt_target
+      DBT_LOG_PATH: /tmp/dbt_logs
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./dbt:/opt/airflow/dbt
+      - ./ingestion:/opt/airflow/ingestion
+      - ./data:/opt/airflow/data
+      - airflow_state:/opt/airflow/state
+
+volumes:
+  postgres_data:
+  airflow_state:

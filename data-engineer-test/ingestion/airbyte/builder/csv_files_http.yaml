@@ -1,0 +1,448 @@
+version: 7.28.2
+type: DeclarativeSource
+check:
+  type: CheckStream
+  stream_names:
+  - pos_gi
+streams:
+- type: DeclarativeStream
+  name: raw_projects
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/raw_projects.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - project_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        project_id:
+          type:
+          - integer
+          - 'null'
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        client_code:
+          type:
+          - string
+          - 'null'
+        project_name:
+          type:
+          - string
+          - 'null'
+      additionalProperties: true
+- type: DeclarativeStream
+  name: raw_campaigns
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/raw_campaigns.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - campaign_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        project_id:
+          type:
+          - integer
+          - 'null'
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        campaign_id:
+          type:
+          - integer
+          - 'null'
+        campaign_name:
+          type:
+          - string
+          - 'null'
+        campaign_end_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        campaign_start_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        total_visits_planned:
+          type:
+          - integer
+          - 'null'
+      additionalProperties: true
+- type: DeclarativeStream
+  name: raw_routes
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/raw_routes.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - route_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        route_id:
+          type:
+          - integer
+          - 'null'
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        campaign_id:
+          type:
+          - integer
+          - 'null'
+        route_status:
+          type:
+          - string
+          - 'null'
+        route_end_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        route_start_date:
+          type:
+          - string
+          - 'null'
+          format: date
+      additionalProperties: true
+- type: DeclarativeStream
+  name: raw_workers
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/raw_workers.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - employee_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        employee_id:
+          type:
+          - integer
+          - 'null'
+        employee_first_name:
+          type:
+          - string
+          - 'null'
+        employee_active_status:
+          type:
+          - boolean
+          - 'null'
+        employee_contract_type:
+          type:
+          - string
+          - 'null'
+        employee_address_province:
+          type:
+          - string
+          - 'null'
+      additionalProperties: true
+- type: DeclarativeStream
+  name: raw_visits
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/raw_visits.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - visit_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        route_id:
+          type:
+          - integer
+          - 'null'
+        visit_id:
+          type:
+          - integer
+          - 'null'
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        visit_date:
+          type:
+          - string
+          - 'null'
+        campaign_id:
+          type:
+          - integer
+          - 'null'
+        visit_status:
+          type:
+          - string
+          - 'null'
+        intervention_point_id:
+          type:
+          - integer
+          - 'null'
+      additionalProperties: true
+- type: DeclarativeStream
+  name: pos_omni
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/pos_omni.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - intervention_point_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date
+        intervention_point_id:
+          type:
+          - integer
+          - 'null'
+        intervention_point_code:
+          type:
+          - string
+          - 'null'
+        intervention_point_name:
+          type:
+          - string
+          - 'null'
+        intervention_point_address:
+          type:
+          - string
+          - 'null'
+        intervention_point_latitude:
+          type:
+          - number
+          - 'null'
+        intervention_point_locality:
+          type:
+          - string
+          - 'null'
+        intervention_point_province:
+          type:
+          - string
+          - 'null'
+        intervention_point_is_active:
+          type:
+          - boolean
+          - 'null'
+        intervention_point_longitude:
+          type:
+          - number
+          - 'null'
+        intervention_point_postal_code:
+          type:
+          - string
+          - 'null'
+      additionalProperties: true
+- type: DeclarativeStream
+  name: pos_gi
+  retriever:
+    type: SimpleRetriever
+    decoder:
+      type: CsvDecoder
+      encoding: utf-8
+      delimiter: ','
+    requester:
+      type: HttpRequester
+      url: '{{ config[''base_url''] }}/pos_gi.csv'
+      http_method: GET
+    record_selector:
+      type: RecordSelector
+      extractor:
+        type: DpathExtractor
+        field_path: []
+  primary_key:
+  - ext_id
+  schema_loader:
+    type: InlineSchemaLoader
+    schema:
+      type: object
+      $schema: http://json-schema.org/draft-07/schema#
+      properties:
+        ext_id:
+          type:
+          - string
+          - 'null'
+        is_active:
+          type:
+          - boolean
+          - 'null'
+        point_name:
+          type:
+          - string
+          - 'null'
+        address_zip:
+          type:
+          - string
+          - 'null'
+        address_city:
+          type:
+          - string
+          - 'null'
+        address_number:
+          type:
+          - string
+          - 'null'
+        address_street:
+          type:
+          - string
+          - 'null'
+      additionalProperties: true
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    $schema: http://json-schema.org/draft-07/schema#
+    required:
+    - base_url
+    properties:
+      base_url:
+        type: string
+        description: Server that hosts the CSV files
+        title: Base URL
+        default: http://localhost:8001
+    additionalProperties: true
+metadata:
+  testedStreams:
+    pos_gi:
+      streamHash: 6f94237a85753e6d5cc8b97405e969d1a8985651
+    pos_omni:
+      streamHash: 3cf112b0c9575c0fb72d617ed49caf8a7721f726
+    raw_routes:
+      streamHash: 44cbb124f8017f994f931008957b86e5ed443e71
+    raw_visits:
+      streamHash: b79e5cfd29ad17426641b11fbf17db536e630c8e
+    raw_workers:
+      streamHash: 7cb7f5ed2bda0578921835c54ac127664944b59f
+    raw_projects:
+      isStale: false
+      hasRecords: true
+      streamHash: cf1a282a147cc00717d24143f295fb9dda585503
+      hasResponse: true
+      primaryKeysAreUnique: true
+      primaryKeysArePresent: true
+      responsesAreSuccessful: true
+    raw_campaigns:
+      streamHash: bea53ecaf645aace44ff616da23fe0e24e7ba835
+  autoImportSchema: {}

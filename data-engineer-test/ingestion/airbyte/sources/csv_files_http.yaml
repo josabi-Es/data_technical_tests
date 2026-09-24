@@ -1,0 +1,10 @@
+{
+  "name": "csv_files_http",
+  "workspaceId": "${AIRBYTE_WORKSPACE_ID}",
+  "definitionId": "${AIRBYTE_CSV_ID}",
+  "configuration": {
+    "base_url": "${FILES_URL}",
+    "__injected_declarative_manifest": {},
+    "__injected_components_py_checksums": {}
+  }
+}

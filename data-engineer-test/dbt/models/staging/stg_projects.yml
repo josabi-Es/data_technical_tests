@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_projects
+    description: One row per project, with real types.
+    columns:
+      - name: project_id
+        description: Project id, cast to integer.
+        data_tests:
+          - unique
+          - not_null
+      - name: client_code
+        description: Client code, upper case.
+        data_tests:
+          - not_null
+      - name: project_name
+        description: Project name, cleaned.
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Creation date.
+      - name: updated_at
+        description: Last update date. Same as created_at, only a date.
