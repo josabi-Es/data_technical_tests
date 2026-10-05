@@ -1,17 +1,17 @@
 [project]
 name = "data-analyst-test"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0",
     "ipykernel>=6.0",
-    "matplotlib>=3.8",
     "dbt-duckdb>=1.11.0",
     "streamlit>=1.64.0",
     "plotly>=7.1.0",
     "duckdb>=1.5.5",
+    "python-dotenv>=1.0",
 ]
 
 [dependency-groups]
