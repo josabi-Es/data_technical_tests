@@ -168,7 +168,7 @@ The work as a small Jira board. Seven epics. Tests are part of every epic.
 
 Three tabs and two filters, client and project type. It only shows numbers, and each number is calculated once in the database. The code is in the [dashboard folder](dashboard/app.py) and the details are in [dashboard.md](dashboard/dashboard.md).
 
-<video src="docs/video/streamlit.mp4" controls width="800"></video>
+<video src="https://github.com/user-attachments/assets/3c523a44-6feb-453f-abe2-80115be4a640" controls width="800"></video>
 
 [Open the video](docs/video/streamlit.mp4)
 
