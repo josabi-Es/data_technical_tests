@@ -1,0 +1,38 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# dbt build artifacts, generated from data/raw, not source of truth
+src/dbt/target/
+src/dbt/logs/
+src/dbt/dbt_packages/
+src/dbt/.user.yml
+
+# databases and secrets
+*.duckdb
+*.duckdb.wal
+.env
+.env.*
+!.env.template
+.streamlit/secrets.toml
+
+# tool caches
+.ruff_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# logs and os files
+*.log
+.DS_Store
+Thumbs.db
+
+# editors
+.vscode/
+.idea/
