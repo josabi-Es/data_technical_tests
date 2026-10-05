@@ -1,0 +1,9 @@
+{
+  "client_id": "INTEGER",
+  "client_name": "VARCHAR",
+  "company_id": "INTEGER",
+  "country": "VARCHAR",
+  "sector": "VARCHAR",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

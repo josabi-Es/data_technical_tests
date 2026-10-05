@@ -1,0 +1,17 @@
+{
+  "visit_id": "INTEGER",
+  "campaign_id": "INTEGER",
+  "campaign_code": "VARCHAR",
+  "project_code": "VARCHAR",
+  "intervention_point_id": "INTEGER",
+  "intervention_point_code": "VARCHAR",
+  "route_id": "INTEGER",
+  "route_code": "VARCHAR",
+  "visit_date": "DATE",
+  "visit_time": "TIME",
+  "visit_status": "VARCHAR",
+  "visit_type": "VARCHAR",
+  "is_client_billable": "BOOLEAN",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}
