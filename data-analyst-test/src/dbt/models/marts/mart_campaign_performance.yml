@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: mart_campaign_performance
+    description: >
+      KPIs per campaign and month. Each campaign has one row per month with dated
+      visits, plus one total row (is_campaign_total) that also counts undated visits.
+      Counts are additive across campaigns. Points covered are not: they are only
+      valid inside one row.
+    data_tests:
+      - grain_is_unique:
+          name: mart_campaign_performance_grain_is_unique
+          description: "No two rows share the same campaign_id, visit_month, is_campaign_total."
+          arguments:
+            combination_of_columns: ['campaign_id', 'visit_month', 'is_campaign_total']
+    columns:
+      - name: client_name
+        description: Client name.
+      - name: project_name
+        description: Project name.
+      - name: project_type
+        description: Project type.
+      - name: campaign_id
+        description: Campaign id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_id
+      - name: campaign_name
+        description: Campaign name.
+      - name: campaign_phase
+        description: Not started, Active or Closed, from the campaign dates against reference_date. Unknown only when a date is missing.
+        data_tests:
+          - accepted_values:
+              name: mart_campaign_performance_campaign_phase_has_known_values
+              description: "campaign_phase only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['Not started', 'Active', 'Closed', 'Unknown']
+      - name: visit_month
+        description: First day of the month of the visits. Blank in total rows.
+      - name: is_campaign_total
+        description: True for the total row of the campaign, false for a month row.
+      - name: visits_recorded
+        description: All visits of the row, any status.
+      - name: visits_done
+        description: Visits with status OK, INCID or INFO, defined once in the macro is_done_status.
+      - name: visits_ok
+        description: Visits with status OK, completed.
+      - name: visits_incident
+        description: Visits with status INCID, completed with an incidence.
+      - name: visits_info
+        description: Visits with status INFO, informational with no full report.
+      - name: visits_not_done
+        description: Visits with status NOVIS, not carried out.
+      - name: visits_unknown
+        description: Visits without a status, set to UNKNOWN in staging.
+      - name: pct_not_done
+        description: visits_not_done divided by visits_recorded.
+      - name: pos_covered
+        description: Distinct points of sale with at least one done visit. Never add it across rows.
+      - name: visits_billable
+        description: Done visits that are billable to the client.
+      - name: visits_with_billing_flag
+        description: Done visits where the billable flag is known.
+      - name: pct_billable
+        description: visits_billable divided by visits_with_billing_flag.
+      - name: field_hours
+        description: Done visits multiplied by the campaign visit minutes, divided by 60. Blank when the campaign has no visit duration, so a sum is a minimum.
+      - name: reference_date
+        description: Latest visit date of all visits, used as today. The data is static, so the real today would make every campaign look closed.

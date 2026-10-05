@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_route_employee
+    description: One row per worker assigned to a route. Soft deleted rows are filtered out.
+    columns:
+      - name: route_employee_id
+        description: Assignment id.
+        data_tests:
+          - unique
+          - not_null
+      - name: route_id
+        description: Assigned route.
+        data_tests:
+          - relationships:
+              name: relationships_stg_route_employee_route_id
+              arguments:
+                to: ref('stg_routes')
+                field: route_id
+      - name: employee_id
+        description: Assigned employee.
+        data_tests:
+          - relationships:
+              name: relationships_stg_route_employee_employee_id
+              arguments:
+                to: ref('stg_workers')
+                field: employee_id
+      - name: main_employee
+        description: Whether this worker is the main one on the route.
+      - name: ip_percentage
+        description: Percentage of the route assigned to this worker.

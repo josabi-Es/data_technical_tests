@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: mart_route_performance
+    description: One row per route, without the no route row. Shows which routes closed without any visit.
+    columns:
+      - name: route_id
+        description: Route id.
+        data_tests:
+          - unique
+          - not_null
+      - name: route_code
+        description: Route business code.
+      - name: route_name
+        description: Route name.
+      - name: client_name
+        description: Client name.
+      - name: project_name
+        description: Project name.
+      - name: project_type
+        description: Project type.
+      - name: campaign_id
+        description: Campaign of the route.
+        data_tests:
+          - not_null
+      - name: campaign_name
+        description: Campaign name.
+      - name: route_start_date
+        description: Route start date.
+      - name: route_end_date
+        description: Route end date.
+      - name: route_status
+        description: Route status.
+      - name: total_visits
+        description: Visits recorded on the route, any status.
+      - name: reference_date
+        description: Latest visit date of all visits, used as today.
+      - name: is_closed
+        description: True when the route end date is before reference_date.
+      - name: is_closed_without_visits
+        description: True when the route is closed and has zero visits. Planned work that did not happen.
+      - name: days_since_closed
+        description: Days since the route ended. Only set when closed without visits.

@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: dim_worker
+    description: One row per field worker.
+    data_tests:
+      - row_count_matches:
+          name: dim_worker_row_count_matches_stg_workers
+          description: "dim_worker has the same number of rows as stg_workers. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_workers')
+    columns:
+      - name: employee_id
+        description: Employee id.
+        data_tests:
+          - unique
+          - not_null
+      - name: employee_first_name
+        description: Employee first name.
+      - name: employee_active_status
+        description: Whether the employee is currently active.
+      - name: employee_address_province
+        description: Employee province.
+        data_tests:
+          - text_is_normalized
+          - no_inverted_article
+      - name: employee_contract_type
+        description: Contract type.

@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_responses
+    description: One row per answer given in a visit.
+    data_tests:
+      - row_count_matches:
+          name: stg_responses_row_count_matches_raw_responses
+          description: "stg_responses has the same number of rows as raw_responses. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_responses')
+    columns:
+      - name: answer_id
+        description: Answer id.
+        data_tests:
+          - unique
+          - not_null
+      - name: visit_id
+        description: Visit the answer belongs to.
+        data_tests:
+          - relationships:
+              name: relationships_stg_responses_visit_id
+              arguments:
+                to: ref('stg_visits')
+                field: visit_id
+      - name: question_id
+        description: Question being answered.
+        data_tests:
+          - relationships:
+              name: relationships_stg_responses_question_id
+              arguments:
+                to: ref('stg_questions')
+                field: question_id
+      - name: question_type
+        description: Answer type, upper case (S single, M multi, N numeric, T text, D date).
+        data_tests:
+          - accepted_values:
+              name: stg_responses_question_type_has_known_values
+              description: "question_type only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['S', 'M', 'N', 'T', 'D']
+      - name: answer
+        description: Answer text, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: expected_answer
+        description: Expected answer, when the question has a known correct value.

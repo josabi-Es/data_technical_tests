@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: dim_campaign
+    description: One row per campaign. Client and project are in the same row, so one filter cuts every fact.
+    data_tests:
+      - row_count_matches:
+          name: dim_campaign_row_count_matches_stg_campaigns
+          description: "dim_campaign has the same number of rows as stg_campaigns. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_campaigns')
+    columns:
+      - name: client_id
+        description: Client of the project.
+        data_tests:
+          - not_null
+      - name: client_name
+        description: Client name.
+      - name: sector
+        description: Client sector.
+      - name: project_id
+        description: Project of the campaign.
+        data_tests:
+          - not_null
+      - name: project_name
+        description: Project name.
+      - name: project_type
+        description: Project type. Derived from the project name in staging.
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: dim_campaign_project_type_has_known_values
+              description: "project_type only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['Mantenimiento', 'Formación', 'Visibilidad', 'Auditoria', 'Sell-In']
+      - name: campaign_id
+        description: Campaign id.
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_name
+        description: Campaign name.
+      - name: campaign_start_date
+        description: Campaign start date.
+      - name: campaign_end_date
+        description: Campaign end date.
+      - name: visit_duration_minutes
+        description: Planned minutes of one visit. Blank in 13 campaigns.
+      - name: total_visits_planned
+        description: >
+          Planned visits, straight from the source. Not comparable with the visits
+          in this extract: 16,768 planned against 1,747 recorded. Kept as source
+          truth, not used in any KPI.
+      - name: total_pos_planned
+        description: Planned points of sale, same limit as the planned visits.

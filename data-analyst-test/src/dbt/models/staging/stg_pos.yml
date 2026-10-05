@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_pos
+    description: One row per point of sale (intervention point).
+    data_tests:
+      - row_count_matches:
+          name: stg_pos_row_count_matches_raw_pos
+          description: "stg_pos has the same number of rows as raw_pos. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_pos')
+    columns:
+      - name: intervention_point_id
+        description: Point of sale id.
+        data_tests:
+          - unique
+          - not_null
+      - name: intervention_point_name
+        description: Point of sale name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: intervention_point_address
+        description: Street address, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: intervention_point_province
+        description: Province, no accents, upper case, Castello fixed to Castellon, inverted articles fixed.
+        data_tests:
+          - text_is_normalized
+          - no_inverted_article
+          - accepted_values:
+              name: stg_pos_intervention_point_province_has_known_values
+              description: "intervention_point_province only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['A CORUNA', 'ALBACETE', 'ALMERIA', 'ALPES (HAUTES)', 'ANDORRA LA VELLA', 'ASTURIAS', 'AVILA', 'BADAJOZ', 'BARCELONA', 'BEJA', 'CACERES', 'CANILLO', 'CANTABRIA', 'CASTELLON', 'CIUDAD REAL', 'COIMBRA', 'CUENCA', 'ESCALDES-ENGORDANY', 'EVORA', 'GIRONA', 'GRANADA', 'GUADALAJARA', 'GUARDA', 'HAUTS-DE-SEINE', 'HUELVA', 'LA RIOJA', 'LAS PALMAS', 'LLEIDA', 'LUGO', 'MADEIRA', 'MADRID', 'MALAGA', 'PALENCIA', 'PONTEVEDRA', 'PORTALEGRE', 'SANTA CRUZ DE TENERIFE', 'SANTAREM', 'SEGOVIA', 'SETUBAL', 'TARRAGONA', 'VALENCIA', 'VALLADOLID', 'VISEU', 'VISEU DAO LAFOES', 'ZAMORA', 'ZARAGOZA']
+      - name: intervention_point_locality
+        description: Locality, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: intervention_point_postal_code
+        description: Postal code.
+      - name: intervention_point_latitude
+        description: Latitude.
+      - name: intervention_point_longitude
+        description: Longitude.
+      - name: intervention_point_is_active
+        description: Whether the point of sale is currently active.

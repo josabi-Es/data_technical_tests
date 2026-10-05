@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_clients
+    description: One row per client, deduplicated.
+    columns:
+      - name: client_id
+        description: Client id.
+        data_tests:
+          - unique
+          - not_null
+          - key_count_matches:
+              name: stg_clients_client_id_count_matches_raw_clients
+              description: "Distinct client_id in stg_clients equals distinct client_id in raw_clients. Proves duplicates were removed and no key was lost."
+              arguments:
+                compare_model: source('raw', 'raw_clients')
+                compare_column: client_id
+      - name: client_name
+        description: Client name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: country
+        description: Country, upper case, no accents, one value for Spain.
+        data_tests:
+          - text_is_normalized
+          - accepted_values:
+              name: stg_clients_country_has_known_values
+              description: "country only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['SPAIN']
+      - name: sector
+        description: Client sector, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean

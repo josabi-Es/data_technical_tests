@@ -1,0 +1,29 @@
+version: 2
+
+data_tests:
+  - name: stg_route_employee_ignores_deleted
+    description: "stg_route_employee has the same rows as raw_route_employee without the deleted assignments. Proves the soft delete filter works."
+  - name: dim_campaign_has_all_clients
+    description: "Every client of stg_clients appears in dim_campaign. Proves the joins from campaign to project to client lose no client."
+  - name: bridge_route_has_one_main_worker
+    description: "No route has two main workers. Two would count a visit twice."
+  - name: bridge_route_has_a_main_worker
+    description: "Every route has a main worker. Warning only: 12 routes lose theirs when deleted assignments are ignored."
+  - name: fct_visits_employee_is_route_main_worker
+    description: "The worker of each visit is the main worker of its route, and visits without a route have no worker."
+  - name: fct_responses_not_done_visit_has_no_answers
+    description: "A visit not done should have no form answers. Warning only: 137 visits not done still have answers."
+  - name: dim_campaign_end_is_after_start
+    description: "A campaign ends after it starts. Warning only: 2 campaigns end before they start, a data entry error."
+  - name: fct_visits_are_inside_campaign_dates
+    description: "Every visit date falls inside the dates of its campaign. Warning only."
+  - name: mart_campaign_performance_visits_match_fct_visits
+    description: "The visits in the campaign mart add up to the visits in fct_visits, for the totals and for the dated months."
+  - name: mart_does_not_read_stg
+    description: "No mart_ model reads from a stg_ model. KPI tables read only the model, so every KPI uses the same cleaned data."
+  - name: mart_campaign_performance_statuses_add_up
+    description: "OK, incident, info, not done and unknown visits add up to the visits recorded in every row."
+  - name: mart_pos_coverage_matches_campaign_pos_covered
+    description: "The points of sale per campaign in mart_pos_coverage equal pos_covered in the campaign totals."
+  - name: mart_visit_responses_question_type_sources_agree
+    description: "When the question and the answer both have a type, they have the same one. This is why mart_visit_responses can fill one from the other."

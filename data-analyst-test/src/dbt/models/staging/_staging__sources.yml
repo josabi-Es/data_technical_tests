@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Typed copy of the raw csv files, loaded by src/ingest/ingest.py into the raw schema.
+    tables:
+      - name: raw_clients
+      - name: raw_projects
+      - name: raw_campaigns
+      - name: raw_questions
+      - name: raw_workers
+      - name: raw_pos
+      - name: raw_routes
+      - name: raw_route_employee
+      - name: raw_visits
+      - name: raw_responses
