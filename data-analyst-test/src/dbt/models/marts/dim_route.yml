@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: dim_route
+    description: One row per route, plus one row with route_id -1 for visits without a route.
+    data_tests:
+      - row_count_matches:
+          name: dim_route_row_count_matches_stg_routes_plus_no_route_row
+          description: "dim_route has the same number of rows as stg_routes, plus one for the No route row. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_routes')
+            offset: 1
+    columns:
+      - name: route_id
+        description: Route id. The value -1 is the no route row.
+        data_tests:
+          - unique
+          - not_null
+      - name: route_code
+        description: Route business code, display only.
+      - name: campaign_id
+        description: Campaign the route belongs to. Blank only in the no route row.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_id
+      - name: route_name
+        description: Route name.
+      - name: route_start_date
+        description: Route start date.
+      - name: route_end_date
+        description: Route end date.
+      - name: route_status
+        description: Route status (ALTA, BAJA, PENDIENTE, UNKNOWN).
+        data_tests:
+          - accepted_values:
+              name: dim_route_route_status_has_known_values
+              description: "route_status only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['ALTA', 'BAJA', 'PENDIENTE', 'UNKNOWN']
+      - name: delegation_code
+        description: Delegation code.

@@ -1,0 +1,12 @@
+{
+  "answer_id": "INTEGER",
+  "visit_id": "INTEGER",
+  "question_id": "INTEGER",
+  "campaign_code": "VARCHAR",
+  "intervention_point_code": "VARCHAR",
+  "question_type": "VARCHAR",
+  "answer": "VARCHAR",
+  "expected_answer": "VARCHAR",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

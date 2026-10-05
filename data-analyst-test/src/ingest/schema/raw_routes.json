@@ -1,0 +1,14 @@
+{
+  "route_id": "INTEGER",
+  "route_code": "VARCHAR",
+  "route_name": "VARCHAR",
+  "campaign_id": "INTEGER",
+  "campaign_code": "VARCHAR",
+  "route_start_date": "DATE",
+  "route_end_date": "DATE",
+  "route_status": "VARCHAR",
+  "delegation_code": "VARCHAR",
+  "recall_mail_sent": "BOOLEAN",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: stg_campaigns
+    description: One row per campaign.
+    data_tests:
+      - row_count_matches:
+          name: stg_campaigns_row_count_matches_raw_campaigns
+          description: "stg_campaigns has the same number of rows as raw_campaigns. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_campaigns')
+    columns:
+      - name: campaign_id
+        description: Campaign id.
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_code
+        description: Campaign business code, display only, not used as a join key.
+        data_tests:
+          - text_is_clean
+      - name: campaign_name
+        description: Campaign name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: project_id
+        description: Project of the campaign.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_campaigns_project_id
+              arguments:
+                to: ref('stg_projects')
+                field: project_id
+      - name: campaign_start_date
+        description: Start date, parsed at ingest from both yyyy-mm-dd and dd/mm/yyyy formats.
+      - name: campaign_end_date
+        description: End date, parsed at ingest from both yyyy-mm-dd and dd/mm/yyyy formats.
+      - name: is_active
+        description: Whether the campaign is active.
+      - name: campaign_state
+        description: Campaign state, upper case, missing values become UNKNOWN.
+        data_tests:
+          - accepted_values:
+              name: stg_campaigns_campaign_state_has_known_values
+              description: "campaign_state only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['ACTIVA', 'EN PREPARACIÓN', 'PAUSADA', 'CERRADA', 'UNKNOWN']
+      - name: total_visits_planned
+        description: Planned number of visits for the campaign.
+      - name: total_pos_planned
+        description: Planned number of points of sale for the campaign.
+      - name: visit_duration_minutes
+        description: Planned duration of a single visit, in minutes.

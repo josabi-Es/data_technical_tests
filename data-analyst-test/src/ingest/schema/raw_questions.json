@@ -1,0 +1,14 @@
+{
+  "question_id": "INTEGER",
+  "campaign_id": "INTEGER",
+  "campaign_code": "VARCHAR",
+  "question_code": "VARCHAR",
+  "question_name": "VARCHAR",
+  "question_type": "VARCHAR",
+  "question_category": "VARCHAR",
+  "question_order": "INTEGER",
+  "question_is_highlighted": "BOOLEAN",
+  "image_associated": "BOOLEAN",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

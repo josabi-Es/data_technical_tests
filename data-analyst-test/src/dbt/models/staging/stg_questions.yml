@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_questions
+    description: One row per question in a campaign questionnaire.
+    data_tests:
+      - row_count_matches:
+          name: stg_questions_row_count_matches_raw_questions
+          description: "stg_questions has the same number of rows as raw_questions. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_questions')
+    columns:
+      - name: question_id
+        description: Question id.
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: Campaign the question belongs to.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_questions_campaign_id
+              arguments:
+                to: ref('stg_campaigns')
+                field: campaign_id
+      - name: question_name
+        description: Question text, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: question_type
+        description: Answer type, upper case (S single, M multi, N numeric, T text, D date).
+        data_tests:
+          - accepted_values:
+              name: stg_questions_question_type_has_known_values
+              description: "question_type only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['S', 'M', 'N', 'T', 'D']
+      - name: question_category
+        description: Question category, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: question_order
+        description: Display order of the question in the form.
+      - name: question_is_highlighted
+        description: Whether the question is highlighted in the form.

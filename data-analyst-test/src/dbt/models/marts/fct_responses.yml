@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: fct_responses
+    description: One row per answer. It links to the model only through dimensions, never to fct_visits.
+    data_tests:
+      - row_count_matches:
+          name: fct_responses_row_count_matches_stg_responses
+          description: "fct_responses has the same number of rows as stg_responses. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_responses')
+    columns:
+      - name: answer_id
+        description: Answer id.
+        data_tests:
+          - unique
+          - not_null
+      - name: visit_id
+        description: Visit of the answer. Kept as a reference, there is no relationship to fct_visits.
+        data_tests:
+          - not_null
+      - name: question_id
+        description: Question being answered. Blank in 288 answers.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_question')
+                field: question_id
+      - name: campaign_id
+        description: Campaign of the answer. From the question, or from the visit when the question is blank.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_id
+      - name: intervention_point_id
+        description: Point of sale of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_pos')
+                field: intervention_point_id
+      - name: visit_date
+        description: Date of the visit.
+      - name: visit_status
+        description: Status of the visit, copied from the visit so answers can be counted on done visits.
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: fct_responses_visit_status_has_known_values
+              description: "visit_status only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
+      - name: question_type
+        description: Answer type (S single, M multi, N numeric, T text, D date).
+      - name: answer
+        description: Given answer.

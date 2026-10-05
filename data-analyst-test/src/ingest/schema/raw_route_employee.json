@@ -1,0 +1,10 @@
+{
+  "route_employee_id": "INTEGER",
+  "route_id": "INTEGER",
+  "employee_id": "INTEGER",
+  "main_employee": "BOOLEAN",
+  "ip_percentage": "DOUBLE",
+  "created_at": "DATE",
+  "updated_at": "DATE",
+  "deleted_at": "DATE"
+}

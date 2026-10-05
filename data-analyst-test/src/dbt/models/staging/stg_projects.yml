@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_projects
+    description: One row per project.
+    data_tests:
+      - row_count_matches:
+          name: stg_projects_row_count_matches_raw_projects
+          description: "stg_projects has the same number of rows as raw_projects. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_projects')
+    columns:
+      - name: project_id
+        description: Project id.
+        data_tests:
+          - unique
+          - not_null
+      - name: project_name
+        description: Project name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: project_type
+        description: Project type, extracted from the project name (e.g. Mantenimiento, Formación, Visibilidad, Auditoria, Sell-In).
+        data_tests:
+          - not_null
+      - name: client_id
+        description: Client that owns the project.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_projects_client_id
+              arguments:
+                to: ref('stg_clients')
+                field: client_id

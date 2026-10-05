@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: fct_visits
+    description: One row per visit. A visit without a route, or with a route that does not exist, gets route_id -1.
+    data_tests:
+      - row_count_matches:
+          name: fct_visits_row_count_matches_stg_visits
+          description: "fct_visits has the same number of rows as stg_visits. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_visits')
+    columns:
+      - name: visit_id
+        description: Visit id.
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: Campaign of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_campaign_id
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_id
+      - name: intervention_point_id
+        description: Point of sale of the visit.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_intervention_point_id
+              arguments:
+                to: ref('dim_pos')
+                field: intervention_point_id
+      - name: route_id
+        description: Route of the visit. The value -1 means no route.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_route_id
+              arguments:
+                to: ref('dim_route')
+                field: route_id
+      - name: employee_id
+        description: Main worker of the route. Derived from route assignments. Blank when the route is -1 or has no main worker.
+        data_tests:
+          - relationships:
+              name: relationships_fct_visits_employee_id
+              arguments:
+                to: ref('dim_worker')
+                field: employee_id
+      - name: visit_date
+        description: Date of the visit. Blank in 37 visits.
+      - name: visit_time
+        description: Time of the visit.
+      - name: visit_status
+        description: Visit status (OK, INCID, INFO, NOVIS, UNKNOWN).
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: fct_visits_visit_status_has_known_values
+              description: "visit_status only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
+      - name: visit_type
+        description: Visit type.
+      - name: is_client_billable
+        description: Whether the visit is billable to the client. Blank in some visits.
