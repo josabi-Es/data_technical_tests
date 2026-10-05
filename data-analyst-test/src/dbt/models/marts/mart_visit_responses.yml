@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: mart_visit_responses
+    description: One row per answer, with campaign, point of sale and question already written, for the Form answers page.
+    data_tests:
+      - row_count_matches:
+          name: mart_visit_responses_row_count_matches_fct_responses
+          description: "mart_visit_responses has the same number of rows as fct_responses. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('fct_responses')
+    columns:
+      - name: answer_id
+        description: Answer id.
+        data_tests:
+          - unique
+          - not_null
+      - name: visit_id
+        description: Visit of the answer.
+      - name: client_name
+        description: Client name.
+      - name: project_name
+        description: Project name.
+      - name: project_type
+        description: Project type.
+      - name: campaign_id
+        description: Campaign of the answer.
+      - name: campaign_name
+        description: Campaign name.
+      - name: visit_date
+        description: Date of the visit.
+      - name: visit_month
+        description: First day of the month of the visit.
+      - name: visit_status
+        description: Visit status.
+      - name: intervention_point_id
+        description: Point of sale of the visit.
+      - name: intervention_point_name
+        description: Point of sale name.
+      - name: intervention_point_province
+        description: Point of sale province.
+      - name: question_id
+        description: Question being answered.
+      - name: question_name
+        description: Question text.
+      - name: question_category
+        description: Question category.
+      - name: question_type
+        description: S single selector, M multi selector, N numeric, T free text, D date. Taken from the question, or from the answer when the question has none. Blank when neither has it.
+        data_tests:
+          - accepted_values:
+              name: mart_visit_responses_question_type_has_known_values
+              description: "question_type only holds the codes of the task brief. A new code stops the build, so someone must check it."
+              arguments:
+                values: ['S', 'M', 'N', 'T', 'D']
+      - name: question_is_highlighted
+        description: Whether the question is highlighted for the client.
+      - name: answer
+        description: Given answer.
+      - name: wants_to_order
+        description: True when the point answers Si to the order question, false for No. Done visits only, blank otherwise.
+      - name: accepts_training
+        description: True when the training result answer contains OK, false otherwise. Done visits only, blank otherwise.

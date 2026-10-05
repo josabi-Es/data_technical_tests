@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_routes
+    description: One row per route.
+    data_tests:
+      - row_count_matches:
+          name: stg_routes_row_count_matches_raw_routes
+          description: "stg_routes has the same number of rows as raw_routes. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: source('raw', 'raw_routes')
+    columns:
+      - name: route_id
+        description: Route id.
+        data_tests:
+          - unique
+          - not_null
+      - name: route_code
+        description: Route business code, display only, not used as a join key.
+        data_tests:
+          - text_is_clean
+      - name: route_name
+        description: Route name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: campaign_id
+        description: Campaign the route belongs to.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_stg_routes_campaign_id
+              arguments:
+                to: ref('stg_campaigns')
+                field: campaign_id
+      - name: route_start_date
+        description: Start date.
+      - name: route_end_date
+        description: End date.
+      - name: route_status
+        description: Route status, upper case, missing values become UNKNOWN.
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: stg_routes_route_status_has_known_values
+              description: "route_status only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['ALTA', 'BAJA', 'PENDIENTE', 'UNKNOWN']
+      - name: delegation_code
+        description: Delegation code, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean

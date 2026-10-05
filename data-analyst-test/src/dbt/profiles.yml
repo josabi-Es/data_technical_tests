@@ -1,0 +1,7 @@
+data_analyst_test:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'data/duckDB/primer_impacto.duckdb') }}"
+      threads: 4

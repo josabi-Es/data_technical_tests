@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: mart_worker_performance
+    description: >
+      One row per worker with visits as main worker of a route. Figures are a
+      minimum: visits without a route, and routes without a main worker, belong to nobody.
+    columns:
+      - name: employee_id
+        description: Employee id.
+        data_tests:
+          - unique
+          - not_null
+      - name: employee_first_name
+        description: Employee first name.
+      - name: employee_address_province
+        description: Employee province.
+      - name: routes_as_main
+        description: Routes where the worker is the main worker.
+      - name: visits_recorded
+        description: Visits of those routes, any status.
+      - name: visits_done
+        description: Visits of those routes with status OK, INCID or INFO.
+      - name: active_days
+        description: Distinct dates with a recorded visit.
+      - name: visits_per_active_day
+        description: visits_done divided by active_days.

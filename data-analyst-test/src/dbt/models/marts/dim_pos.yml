@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_pos
+    description: One row per point of sale (intervention point).
+    data_tests:
+      - row_count_matches:
+          name: dim_pos_row_count_matches_stg_pos
+          description: "dim_pos has the same number of rows as stg_pos. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_pos')
+    columns:
+      - name: intervention_point_id
+        description: Point of sale id.
+        data_tests:
+          - unique
+          - not_null
+      - name: intervention_point_name
+        description: Point of sale name.
+      - name: intervention_point_province
+        description: Province, cleaned in staging.
+        data_tests:
+          - text_is_normalized
+          - no_inverted_article
+      - name: intervention_point_locality
+        description: Locality.
+      - name: intervention_point_latitude
+        description: Latitude.
+      - name: intervention_point_longitude
+        description: Longitude.
+      - name: intervention_point_is_active
+        description: Whether the point of sale is currently active.

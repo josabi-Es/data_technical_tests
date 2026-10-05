@@ -1,0 +1,11 @@
+{
+  "employee_id": "INTEGER",
+  "employee_first_name": "VARCHAR",
+  "employee_active_status": "BOOLEAN",
+  "employee_hire_date": "DATE",
+  "employee_address_province": "VARCHAR",
+  "employee_contract_type": "VARCHAR",
+  "company_id": "INTEGER",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

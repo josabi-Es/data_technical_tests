@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: dim_question
+    description: One row per question.
+    data_tests:
+      - row_count_matches:
+          name: dim_question_row_count_matches_stg_questions
+          description: "dim_question has the same number of rows as stg_questions. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_questions')
+    columns:
+      - name: question_id
+        description: Question id.
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: Campaign the question belongs to.
+        data_tests:
+          - not_null
+      - name: question_name
+        description: Question text.
+      - name: question_type
+        description: Answer type (S single, M multi, N numeric, T text, D date).
+      - name: question_category
+        description: Question category.
+      - name: question_order
+        description: Display order in the form.
+      - name: question_is_highlighted
+        description: Whether the question is highlighted for the client.

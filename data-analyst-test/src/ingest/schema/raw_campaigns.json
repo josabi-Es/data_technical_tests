@@ -1,0 +1,18 @@
+{
+  "campaign_id": "INTEGER",
+  "campaign_code": "VARCHAR",
+  "campaign_name": "VARCHAR",
+  "project_id": "INTEGER",
+  "project_code": "VARCHAR",
+  "client_code": "VARCHAR",
+  "campaign_start_date": "DATE",
+  "campaign_end_date": "DATE",
+  "is_active": "BOOLEAN",
+  "campaign_state_id": "INTEGER",
+  "campaign_state": "VARCHAR",
+  "total_visits_planned": "INTEGER",
+  "total_pos_planned": "INTEGER",
+  "visit_duration_minutes": "INTEGER",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE"
+}

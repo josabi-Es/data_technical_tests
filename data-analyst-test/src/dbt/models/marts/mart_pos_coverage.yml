@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: mart_pos_coverage
+    description: >
+      One row per campaign and point of sale with at least one done visit. It lets
+      the dashboard count different points of sale for any client or project type,
+      because points covered cannot be added across campaigns.
+    data_tests:
+      - grain_is_unique:
+          name: mart_pos_coverage_grain_is_unique
+          description: "No two rows share the same campaign_id and intervention_point_id."
+          arguments:
+            combination_of_columns: ['campaign_id', 'intervention_point_id']
+    columns:
+      - name: client_name
+        description: Client name.
+      - name: project_type
+        description: Project type.
+      - name: campaign_id
+        description: Campaign of the visits.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_id
+      - name: intervention_point_id
+        description: Point of sale with a done visit.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_pos')
+                field: intervention_point_id
+      - name: visits_done
+        description: Done visits of the campaign at this point of sale.

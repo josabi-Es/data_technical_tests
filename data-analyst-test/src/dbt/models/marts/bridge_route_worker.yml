@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: bridge_route_worker
+    description: One row per worker assigned to a route. Solves the many to many between routes and workers.
+    data_tests:
+      - row_count_matches:
+          name: bridge_route_worker_row_count_matches_stg_route_employee
+          description: "bridge_route_worker has the same number of rows as stg_route_employee. A difference means rows were lost or added by mistake."
+          arguments:
+            compare_model: ref('stg_route_employee')
+    columns:
+      - name: route_employee_id
+        description: Assignment id.
+        data_tests:
+          - unique
+          - not_null
+      - name: route_id
+        description: Assigned route.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_bridge_route_worker_route_id
+              arguments:
+                to: ref('dim_route')
+                field: route_id
+      - name: employee_id
+        description: Assigned employee.
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_bridge_route_worker_employee_id
+              arguments:
+                to: ref('dim_worker')
+                field: employee_id
+      - name: main_employee
+        description: Whether this worker is the main one on the route.
+      - name: ip_percentage
+        description: Percentage of the route assigned to this worker.

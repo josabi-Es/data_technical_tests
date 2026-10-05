@@ -1,0 +1,10 @@
+{
+  "project_id": "INTEGER",
+  "project_name": "VARCHAR",
+  "project_code": "VARCHAR",
+  "client_id": "INTEGER",
+  "client_code": "VARCHAR",
+  "created_at": "DATE",
+  "updated_at_sys": "DATE",
+  "project_exportable": "BOOLEAN"
+}

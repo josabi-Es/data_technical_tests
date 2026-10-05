@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: stg_visits
+    description: One row per visit, deduplicated.
+    columns:
+      - name: visit_id
+        description: Visit id.
+        data_tests:
+          - unique
+          - not_null
+          - key_count_matches:
+              name: stg_visits_visit_id_count_matches_raw_visits
+              description: "Distinct visit_id in stg_visits equals distinct visit_id in raw_visits. Proves duplicates were removed and no key was lost."
+              arguments:
+                compare_model: source('raw', 'raw_visits')
+                compare_column: visit_id
+      - name: campaign_id
+        description: Campaign of the visit.
+        data_tests:
+          - relationships:
+              name: relationships_stg_visits_campaign_id
+              arguments:
+                to: ref('stg_campaigns')
+                field: campaign_id
+      - name: intervention_point_id
+        description: Point of sale of the visit.
+        data_tests:
+          - relationships:
+              name: relationships_stg_visits_intervention_point_id
+              arguments:
+                to: ref('stg_pos')
+                field: intervention_point_id
+      - name: route_id
+        description: Route of the visit.
+      - name: visit_date
+        description: Date of the visit, parsed at ingest from both yyyy-mm-dd and dd/mm/yyyy formats.
+      - name: visit_time
+        description: Time of the visit.
+      - name: visit_status
+        description: Visit status, upper case, missing values become UNKNOWN.
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: stg_visits_visit_status_has_known_values
+              description: "visit_status only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
+      - name: visit_type
+        description: Visit type, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: is_client_billable
+        description: Whether the visit is billable to the client.

@@ -1,0 +1,14 @@
+{
+  "intervention_point_id": "INTEGER",
+  "intervention_point_code": "VARCHAR",
+  "intervention_point_name": "VARCHAR",
+  "intervention_point_address": "VARCHAR",
+  "intervention_point_province": "VARCHAR",
+  "intervention_point_locality": "VARCHAR",
+  "intervention_point_postal_code": "INTEGER",
+  "intervention_point_latitude": "DOUBLE",
+  "intervention_point_longitude": "DOUBLE",
+  "intervention_point_is_active": "BOOLEAN",
+  "created_at": "DATE",
+  "updated_at": "DATE"
+}

@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_workers
+    description: One row per field worker, deduplicated.
+    columns:
+      - name: employee_id
+        description: Employee id.
+        data_tests:
+          - unique
+          - not_null
+          - key_count_matches:
+              name: stg_workers_employee_id_count_matches_raw_workers
+              description: "Distinct employee_id in stg_workers equals distinct employee_id in raw_workers. Proves duplicates were removed and no key was lost."
+              arguments:
+                compare_model: source('raw', 'raw_workers')
+                compare_column: employee_id
+      - name: employee_first_name
+        description: Employee first name, trimmed and blank collapsed to null.
+        data_tests:
+          - text_is_clean
+      - name: employee_active_status
+        description: Whether the employee is currently active.
+      - name: employee_hire_date
+        description: Hire date.
+      - name: employee_address_province
+        description: Province, same rules as the point of sale province.
+        data_tests:
+          - text_is_normalized
+          - no_inverted_article
+          - accepted_values:
+              name: stg_workers_employee_address_province_has_known_values
+              description: "employee_address_province only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['A CORUNA', 'ALBACETE', 'ALMERIA', 'ALPES (HAUTES)', 'ANDORRA LA VELLA', 'ASTURIAS', 'AVILA', 'BADAJOZ', 'BARCELONA', 'BEJA', 'CACERES', 'CANILLO', 'CANTABRIA', 'CASTELLON', 'CIUDAD REAL', 'COIMBRA', 'CUENCA', 'ESCALDES-ENGORDANY', 'EVORA', 'GIRONA', 'GRANADA', 'GUADALAJARA', 'GUARDA', 'HAUTS-DE-SEINE', 'HUELVA', 'LA RIOJA', 'LAS PALMAS', 'LLEIDA', 'LUGO', 'MADEIRA', 'MADRID', 'MALAGA', 'PALENCIA', 'PONTEVEDRA', 'PORTALEGRE', 'SANTA CRUZ DE TENERIFE', 'SANTAREM', 'SEGOVIA', 'SETUBAL', 'TARRAGONA', 'VALENCIA', 'VALLADOLID', 'VISEU', 'VISEU DAO LAFOES', 'ZAMORA', 'ZARAGOZA']
+      - name: employee_contract_type
+        description: Contract type, trimmed and upper case.
+        data_tests:
+          - accepted_values:
+              name: stg_workers_employee_contract_type_has_known_values
+              description: "employee_contract_type only holds the listed values. A new value stops the build, so someone must check it."
+              arguments:
+                values: ['INDEF', 'PART', 'TEMP']
