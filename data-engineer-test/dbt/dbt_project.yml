@@ -16,3 +16,17 @@ models:
     marts:
       +schema: marts
       +materialized: table
+
+seeds:
+  primer_impacto:
+    marts:
+      +schema: marts
+
+vars:
+  postal_code_distance: 1
+  match_confidence_exact: 1.0
+  match_confidence_address: 0.8
+  spain_lat_min: 27
+  spain_lat_max: 44
+  spain_lon_min: -19
+  spain_lon_max: 5

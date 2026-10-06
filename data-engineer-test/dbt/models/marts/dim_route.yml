@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: dim_route
+    description: >
+      One row per route, with its status normalized and the campaign it belongs to.
+      Key is the route id. Row -1 is the unknown route.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: route_key
+        description: Route id. -1 for the unknown row.
+        data_type: integer
+        constraints:
+          - type: primary_key
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_key
+        description: Campaign of the route. A test checks it matches the campaign of its visits.
+        data_type: integer
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_dim_route_campaign_key
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_key
+      - name: route_start_date
+        description: First day of the route.
+        data_type: date
+      - name: route_end_date
+        description: Last day of the route.
+        data_type: date
+      - name: route_status
+        description: Route status in upper case. UNKNOWN when missing.
+        data_type: text
+        data_tests:
+          - not_null
+          - accepted_values:
+              name: accepted_values_dim_route_route_status
+              arguments:
+                values: ['OK', 'GRABADO', 'UNKNOWN']
