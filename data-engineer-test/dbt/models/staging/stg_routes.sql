@@ -18,7 +18,7 @@ renamed as (
         campaign_id::integer as campaign_id,
         route_start_date::date as route_start_date,
         route_end_date::date as route_end_date,
-        upper({{ clean_string('route_status') }}) as route_status,
+        coalesce(upper({{ clean_string('route_status') }}), 'UNKNOWN') as route_status,
         created_at::date as created_at
     from source
 

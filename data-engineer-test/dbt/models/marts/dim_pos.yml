@@ -1,14 +1,14 @@
 version: 2
 
 models:
-  - name: dim_pos_unified
+  - name: dim_pos
     description: One row per real point of sale, joining omni and gi by name and postal code.
     config:
       contract:
         enforced: true
     columns:
-      - name: pos_id
-        description: Key of the row, md5 of the omni id or else the gi id.
+      - name: pos_key
+        description: Key of the row, md5 of the omni id or else the gi id. Never built from the match rule, so it stays stable if the rule changes. -1 is the unknown row.
         data_type: text
         constraints:
           - type: primary_key
@@ -61,28 +61,28 @@ models:
         data_tests:
           - not_null
       - name: match_status
-        description: MATCHED, OMNI_ONLY or GI_ONLY.
+        description: MATCHED, OMNI_ONLY or GI_ONLY. UNKNOWN for the -1 row. GI_ONLY stores are kept to show the gap between systems.
         data_type: text
         data_tests:
           - not_null
           - accepted_values:
-              name: accepted_values_dim_pos_unified_match_status
+              name: accepted_values_dim_pos_match_status
               arguments:
-                values: ['MATCHED', 'OMNI_ONLY', 'GI_ONLY']
+                values: ['MATCHED', 'OMNI_ONLY', 'GI_ONLY', 'UNKNOWN']
       - name: source_system
         description: Where the store comes from, OMNI+GI, OMNI or GI.
         data_type: text
         data_tests:
           - accepted_values:
-              name: accepted_values_dim_pos_unified_source_system
+              name: accepted_values_dim_pos_source_system
               arguments:
-                values: ['OMNI+GI', 'OMNI', 'GI']
+                values: ['OMNI+GI', 'OMNI', 'GI', 'UNKNOWN']
       - name: match_rule
         description: Match rule. Null when not matched.
         data_type: text
         data_tests:
           - accepted_values:
-              name: accepted_values_dim_pos_unified_match_rule
+              name: accepted_values_dim_pos_match_rule
               arguments:
                 values: ['NAME_POSTAL_CODE', 'NAME_ADDRESS']
       - name: confidence
@@ -90,15 +90,15 @@ models:
         data_type: numeric
         data_tests:
           - accepted_values:
-              name: accepted_values_dim_pos_unified_confidence
+              name: accepted_values_dim_pos_confidence
               arguments:
                 values: [1.0, 0.8]
                 quote: false
 
 unit_tests:
-  - name: test_dim_pos_unified_match_status
+  - name: test_dim_pos_match_status
     description: Checks MATCHED, OMNI_ONLY and GI_ONLY.
-    model: dim_pos_unified
+    model: dim_pos
     given:
       - input: ref('stg_pos_omni')
         rows:
@@ -115,9 +115,10 @@ unit_tests:
         - {intervention_point_id: 2, ext_id: null, match_status: 'OMNI_ONLY', source_system: 'OMNI'}
         - {intervention_point_id: null, ext_id: 'GI-2', match_status: 'GI_ONLY', source_system: 'GI'}
         - {intervention_point_id: null, ext_id: 'GI-3', match_status: 'GI_ONLY', source_system: 'GI'}
-  - name: test_dim_pos_unified_postal_code_typo
+        - {intervention_point_id: null, ext_id: null, match_status: 'UNKNOWN', source_system: 'UNKNOWN'}
+  - name: test_dim_pos_postal_code_typo
     description: Checks the match when the postal code has a one digit typo.
-    model: dim_pos_unified
+    model: dim_pos
     given:
       - input: ref('stg_pos_omni')
         rows:
@@ -132,3 +133,19 @@ unit_tests:
         - {intervention_point_id: 3, ext_id: 'GI-4', match_status: 'MATCHED', match_rule: 'NAME_ADDRESS'}
         - {intervention_point_id: 4, ext_id: null, match_status: 'OMNI_ONLY', match_rule: null}
         - {intervention_point_id: null, ext_id: 'GI-5', match_status: 'GI_ONLY', match_rule: null}
+        - {intervention_point_id: null, ext_id: null, match_status: 'UNKNOWN', match_rule: null}
+  - name: test_dim_pos_far_postal_code_no_match
+    description: Same name with a postal code more than 1 apart must not match.
+    model: dim_pos
+    given:
+      - input: ref('stg_pos_omni')
+        rows:
+          - {intervention_point_id: 5, name: 'Dermapoint Norte 7', name_normalized: 'dermapoint norte 7', street: 'Calle 9', door_number: 12, postal_code: '28001'}
+      - input: ref('stg_pos_gi')
+        rows:
+          - {ext_id: 'GI-6', name: 'Dermapoint Norte 7', name_normalized: 'dermapoint norte 7', street: 'Calle 9', door_number: 12, postal_code: '28010'}
+    expect:
+      rows:
+        - {intervention_point_id: 5, ext_id: null, match_status: 'OMNI_ONLY'}
+        - {intervention_point_id: null, ext_id: 'GI-6', match_status: 'GI_ONLY'}
+        - {intervention_point_id: null, ext_id: null, match_status: 'UNKNOWN'}

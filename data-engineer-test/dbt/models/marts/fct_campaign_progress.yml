@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: fct_campaign_progress
+    description: >
+      One row per campaign: planned visits against visits done. Different grain from
+      fct_visits, so total_visits_planned lives only here (summing it in fct_visits would repeat it per visit).
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: campaign_key
+        description: Campaign in dim_campaign.
+        data_type: integer
+        constraints:
+          - type: primary_key
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              name: relationships_fct_campaign_progress_campaign_key
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_key
+      - name: total_visits_planned
+        description: Visits planned for the campaign.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: visits_total
+        description: Visits of the campaign in fct_visits.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: visits_completed
+        description: Visits that count as done.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: visits_incidence
+        description: Visits that ended with an incidence.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: completion_rate
+        description: visits_completed over total_visits_planned. Can pass 1 if more visits than planned were done.
+        data_type: numeric(8,4)

@@ -39,15 +39,32 @@ models:
       - name: visit_date
         description: Date of the visit. Cast to date.
       - name: visit_status
-        description: Visit status, trimmed and in upper case.
+        description: Visit status, trimmed and in upper case. Null becomes UNKNOWN so no visit is lost.
         data_tests:
+          - not_null
           - accepted_values:
               name: accepted_values_stg_visits_visit_status
               arguments:
-                values: ['OK', 'INCID', 'INFO', 'NOVIS']
+                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
       - name: created_at
         description: Creation date. Only a date in raw.
       - name: updated_at
         description: Last update date.
         data_tests:
           - not_null
+
+unit_tests:
+  - name: test_stg_visits_status_clean
+    description: Spaces and case are fixed and a null status becomes UNKNOWN.
+    model: stg_visits
+    given:
+      - input: source('raw', 'raw_visits')
+        rows:
+          - {visit_id: '1', intervention_point_id: '1', route_id: '1', campaign_id: '1', visit_date: '2024-03-01', visit_status: ' ok ', created_at: '2024-03-01', updated_at: '2024-03-01'}
+          - {visit_id: '2', intervention_point_id: '1', route_id: '1', campaign_id: '1', visit_date: '2024-03-01', visit_status: 'Ok', created_at: '2024-03-01', updated_at: '2024-03-01'}
+          - {visit_id: '3', intervention_point_id: '1', route_id: '1', campaign_id: '1', visit_date: '2024-03-01', visit_status: null, created_at: '2024-03-01', updated_at: '2024-03-01'}
+    expect:
+      rows:
+        - {visit_id: 1, visit_status: 'OK'}
+        - {visit_id: 2, visit_status: 'OK'}
+        - {visit_id: 3, visit_status: 'UNKNOWN'}

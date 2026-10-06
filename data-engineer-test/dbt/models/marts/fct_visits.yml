@@ -2,7 +2,11 @@ version: 2
 
 models:
   - name: fct_visits
-    description: One row per visit, loaded incrementally.
+    description: >
+      One row per visit, loaded incrementally. Only keys, dates and simple measures:
+      attributes live in the dims, so the dims can be rebuilt in full and stay current.
+      A visit is reloaded when its updated_at is newer than the one stored, so a late
+      correction is not lost. A key that finds no dim row points to -1.
     config:
       contract:
         enforced: true
@@ -13,66 +17,164 @@ models:
         data_tests:
           - unique
           - not_null
-      - name: pos_id
-        description: Key of the point of sale in dim_pos_unified.
+      - name: pos_key
+        description: Store in dim_pos. -1 when the store is unknown.
         data_type: text
         data_tests:
           - not_null
           - relationships:
-              name: relationships_fct_visits_pos_id
+              name: relationships_fct_visits_pos_key
               arguments:
-                to: ref('dim_pos_unified')
-                field: pos_id
-      - name: intervention_point_id
-        description: Id of the point of sale in pos_omni.
-        data_type: integer
-      - name: route_id
-        description: Route of the visit.
+                to: ref('dim_pos')
+                field: pos_key
+      - name: route_key
+        description: Route in dim_route. -1 when the route is unknown.
         data_type: integer
         data_tests:
           - not_null
-      - name: route_status
-        description: Route status. UNKNOWN when missing.
-        data_type: text
-        data_tests:
-          - accepted_values:
-              name: accepted_values_fct_visits_route_status
+          - relationships:
+              name: relationships_fct_visits_route_key
               arguments:
-                values: ['OK', 'GRABADO', 'UNKNOWN']
-      - name: campaign_id
-        description: Campaign of the visit.
+                to: ref('dim_route')
+                field: route_key
+      - name: campaign_key
+        description: Campaign in dim_campaign. -1 when the campaign is unknown.
         data_type: integer
         data_tests:
           - not_null
-      - name: campaign_name
-        description: Name of the campaign.
-        data_type: text
-      - name: project_id
-        description: Project of the campaign.
+          - relationships:
+              name: relationships_fct_visits_campaign_key
+              arguments:
+                to: ref('dim_campaign')
+                field: campaign_key
+      - name: status_key
+        description: Status in dim_visit_status. -1 is UNKNOWN.
         data_type: integer
-      - name: project_name
-        description: Name of the project.
-        data_type: text
-      - name: client_code
-        description: Client of the project.
-        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_status_key
+              arguments:
+                to: ref('dim_visit_status')
+                field: status_key
+      - name: date_key
+        description: Visit day in dim_date. -1 when the date is missing.
+        data_type: integer
+        data_tests:
+          - not_null
+          - relationships:
+              name: relationships_fct_visits_date_key
+              arguments:
+                to: ref('dim_date')
+                field: date_key
       - name: visit_date
         description: Date of the visit.
         data_type: date
-      - name: visit_status
-        description: Visit status. UNKNOWN when missing.
-        data_type: text
-        data_tests:
-          - not_null
-          - accepted_values:
-              name: accepted_values_fct_visits_visit_status
-              arguments:
-                values: ['OK', 'INCID', 'INFO', 'NOVIS', 'UNKNOWN']
-      - name: created_at
-        description: Creation date.
-        data_type: date
       - name: updated_at
-        description: Last update date. Used for the incremental load.
+        description: Last update date. Compared row by row to load the increment.
         data_type: date
         data_tests:
           - not_null
+      - name: is_completed
+        description: True when the status counts as done, from dim_visit_status.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: is_incidence
+        description: True when the visit ended with an incidence, from dim_visit_status.
+        data_type: boolean
+        data_tests:
+          - not_null
+
+unit_tests:
+  - name: test_fct_visits_late_correction_reprocessed
+    description: A visit corrected 10 days later is loaded again. Case from the review feedback.
+    model: fct_visits
+    overrides:
+      macros:
+        is_incremental: true
+    given:
+      - input: ref('stg_visits')
+        rows:
+          - {visit_id: 1, intervention_point_id: 10, route_id: 1, campaign_id: 1, visit_date: '2024-03-01', visit_status: 'OK', updated_at: '2024-03-11'}
+          - {visit_id: 2, intervention_point_id: 10, route_id: 1, campaign_id: 1, visit_date: '2024-03-01', visit_status: 'OK', updated_at: '2024-03-02'}
+      - input: ref('dim_pos')
+        rows:
+          - {pos_key: 'abc', intervention_point_id: 10}
+      - input: ref('dim_route')
+        rows:
+          - {route_key: 1}
+      - input: ref('dim_campaign')
+        rows:
+          - {campaign_key: 1}
+      - input: ref('dim_visit_status')
+        rows:
+          - {status_key: 1, visit_status: 'OK', is_completed: true, is_incidence: false}
+      - input: ref('dim_date')
+        rows:
+          - {date_key: 20240301, date_day: '2024-03-01'}
+      - input: this
+        rows:
+          - {visit_id: 1, updated_at: '2024-03-01'}
+          - {visit_id: 2, updated_at: '2024-03-02'}
+    expect:
+      rows:
+        - {visit_id: 1, updated_at: '2024-03-11'}
+  - name: test_fct_visits_missing_route_points_to_unknown
+    description: A visit whose route is not in dim_route keeps its row and gets route_key -1.
+    model: fct_visits
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('stg_visits')
+        rows:
+          - {visit_id: 1, intervention_point_id: 10, route_id: 99, campaign_id: 1, visit_date: '2024-03-01', visit_status: 'OK', updated_at: '2024-03-02'}
+      - input: ref('dim_pos')
+        rows:
+          - {pos_key: 'abc', intervention_point_id: 10}
+      - input: ref('dim_route')
+        rows:
+          - {route_key: 1}
+      - input: ref('dim_campaign')
+        rows:
+          - {campaign_key: 1}
+      - input: ref('dim_visit_status')
+        rows:
+          - {status_key: 1, visit_status: 'OK', is_completed: true, is_incidence: false}
+      - input: ref('dim_date')
+        rows:
+          - {date_key: 20240301, date_day: '2024-03-01'}
+    expect:
+      rows:
+        - {visit_id: 1, pos_key: 'abc', route_key: -1, campaign_key: 1, status_key: 1}
+  - name: test_fct_visits_late_dimension_not_reprocessed
+    description: A visit stored with route -1 is not loaded again when the route shows up later, unless updated_at changes. Accepted behaviour.
+    model: fct_visits
+    overrides:
+      macros:
+        is_incremental: true
+    given:
+      - input: ref('stg_visits')
+        rows:
+          - {visit_id: 1, intervention_point_id: 10, route_id: 1, campaign_id: 1, visit_date: '2024-03-01', visit_status: 'OK', updated_at: '2024-03-02'}
+      - input: ref('dim_pos')
+        rows:
+          - {pos_key: 'abc', intervention_point_id: 10}
+      - input: ref('dim_route')
+        rows:
+          - {route_key: 1}
+      - input: ref('dim_campaign')
+        rows:
+          - {campaign_key: 1}
+      - input: ref('dim_visit_status')
+        rows:
+          - {status_key: 1, visit_status: 'OK', is_completed: true, is_incidence: false}
+      - input: ref('dim_date')
+        rows:
+          - {date_key: 20240301, date_day: '2024-03-01'}
+      - input: this
+        rows:
+          - {visit_id: 1, route_key: -1, updated_at: '2024-03-02'}
+    expect:
+      rows: []

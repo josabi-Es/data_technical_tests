@@ -3,6 +3,11 @@ version: 2
 sources:
   - name: raw
     schema: raw
+    config:
+      loaded_at_field: _airbyte_extracted_at
+      freshness:
+        warn_after: {count: 7, period: day}  # [assumed: no SLA given]
+        error_after: {count: 30, period: day}
     tables:
       - name: raw_projects
       - name: raw_campaigns
