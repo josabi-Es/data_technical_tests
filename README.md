@@ -9,19 +9,18 @@ This repository has the solution to two technical tests:
 
 ## Data Engineer test
 
-In this repository you can find the solution to the Data Engineer test in [`/data-engineer-test`](./data-engineer-test).
+Everything is explained in [`/data-engineer-test/notes.md`](./data-engineer-test/notes.md): the problem, the decisions, the model, the tests and what is left. Start there.
+
+The original brief is in [`/data-engineer-test/README.md`](./data-engineer-test/README.md).
 
 ### 1. Goal
 
 Main objective: automation, configuration, coordination and execution.
 
-- Automate the whole process: load the CSV files with Airbyte and run dbt inside a PostgreSQL database.
-- Build the raw, staging and marts layers in PostgreSQL.
+- Load the CSV files with Airbyte into PostgreSQL and build the raw, staging and marts layers with dbt.
 - Let Airflow run every step in the right order and on a schedule.
-- Track how long each run takes and when it fails.
+- See each run and its failures in Airflow.
 - Deploy everything locally with Docker.
-
-The focus is the pipeline: how the data moves, how it runs and how it is monitored.
 
 ### 2. Prerequisites
 
@@ -29,29 +28,13 @@ The focus is the pipeline: how the data moves, how it runs and how it is monitor
 - Install Docker: https://docs.docker.com/desktop/setup/install/windows-install/
 - Install uv: https://docs.astral.sh/uv/getting-started/installation/
 
-### 3. Instructions
-
-All the instructions are in [`/data-engineer-test/README.md`](./data-engineer-test/README.md). That document was not modified. It is the original.
-
-### 4. Extra documentation
-
-This project has 3 phases: Ingestion, dbt and orchestration with Airflow.
-
-In the folder `/data-engineer-test/docs` you can find detailed information about each phase. There is also an `introduccion.md` file with the first approach.
-
-To see the decisions and the specifications of the project, go to:
-
-- `/docs/airflow.md`
-- `/docs/ingestion.md`
-- `/docs/dbt.md`
-
-### 5. Deploy locally
+### 3. Deploy locally
 
 #### Step 0: Clone and install
 
 ```bash
 git clone https://github.com/josabi-Es/data_technical_tests.git
-cd data-engineer-test
+cd data_technical_tests/data-engineer-test
 uv venv
 source .venv/Scripts/activate   # or .venv/bin/activate
 uv sync
@@ -60,7 +43,6 @@ uv sync
 #### Step 1: Set the environment variables
 
 ```bash
-cd data-engineer-test
 copy .env.template .env
 ```
 
@@ -68,28 +50,17 @@ Fill in the variables that are requested.
 
 #### Step 2: Build Docker
 
-Build and start the containers with Docker Compose.
-
 ```bash
-cd data-engineer-test
 docker compose up -d --build
 ```
 
-This starts postgres, pgadmin, files and airflow. To stop them:
+This starts postgres, pgadmin, files and airflow. The `files` service serves the CSV files on port 8001, which Airbyte reads. To stop everything:
 
 ```bash
 docker compose down
 ```
 
-#### Step 3: Start the HTTP endpoint
-
-```bash
-uv run python -m ingestion.http.serve_http
-```
-
-This leaves an open endpoint that a terminal can read.
-
-#### Step 4: Start Airbyte and create the connections
+#### Step 3: Start Airbyte and create the connections
 
 Follow the instructions in [ingestion/airbyte](data-engineer-test/ingestion/airbyte). Use these YAML files:
 
@@ -97,24 +68,25 @@ Follow the instructions in [ingestion/airbyte](data-engineer-test/ingestion/airb
 - Sources: [csv_files_http.yaml](data-engineer-test/ingestion/airbyte/sources/csv_files_http.yaml), [postgres.yaml](data-engineer-test/ingestion/airbyte/sources/postgres.yaml)
 - Destination: [postgres.yaml](data-engineer-test/ingestion/airbyte/destinations/postgres.yaml)
 
-#### Step 5: Test the configuration
+#### Step 4: Run the pipeline
 
-Test the configuration with the DAGs in `localhost:8000`.
+With Airflow: open `http://localhost:8080` and start the DAG `run_all`. It loads the data and then runs dbt. It also runs by itself every day at 06:00 UTC.
 
-If you leave this setup running, you can schedule periodic ingestions and periodic transformations. They are controlled by Airbyte and by the Airflow schedule.
+With dbt only:
 
-### 6. External sources
+```bash
+cd dbt
+set -a; . ../.env; set +a
+export DBT_PROFILES_DIR=.
+DBT_FULL_REFRESH=true dbt build
+```
 
-Source external used 
+You should see `PASS=127 WARN=3 ERROR=0`. The 3 warnings are normal. They are real findings in the data. Use `DBT_FULL_REFRESH=true` on the first run and after a schema change. Later runs are a plain `dbt build`.
 
-- Ingestion: 
-- https://docs.airbyte.com/
-- https://docs.airbyte.com/platform/using-airbyte/getting-started/oss-quickstart
-- https://github.com/airbytehq/airbyte
+### 4. External sources
 
-dbt
-- https://docs.getdbt.com/docs/get-started-dbt
-- https://github.com/airbytehq/airbyte
+- Airbyte: https://docs.airbyte.com/ and https://github.com/airbytehq/airbyte
+- dbt: https://docs.getdbt.com/docs/get-started-dbt
 
 ## Data Analyst test
 
@@ -126,7 +98,7 @@ Everything is explained, with demonstrations, in [`/data-analyst-test/notes.md`]
 
 ### Deploy locally
 
-You need [uv](https://docs.astral.sh/uv/getting-started/installation/). Docker is optional and only used in Step 5.
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 #### Step 0: Clone and install
 
@@ -169,14 +141,3 @@ uv run streamlit run dashboard/app.py
 ```
 
 It opens `http://localhost:8501`.
-
-#### Step 5: Run the dashboard with Docker (optional)
-
-If you prefer a container, build the image and run it. The database is not inside the image, so the `data` folder is shared with the container.
-
-```bash
-docker build -f dashboard/dockerfile -t analyst-dashboard .
-docker run -p 8501:8501 -v "${PWD}/data:/app/data" analyst-dashboard
-```
-
-Open `http://localhost:8501`. Run Step 2 and Step 3 first, so the database exists.
