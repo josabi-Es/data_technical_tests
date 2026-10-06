@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: dim_campaign
+    description: >
+      One row per campaign, with project and client flattened in (16 campaigns and
+      11 projects, so a snowflake adds nothing). Key is the campaign id. Row -1 is the unknown campaign.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: campaign_key
+        description: Campaign id. -1 for the unknown row.
+        data_type: integer
+        constraints:
+          - type: primary_key
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_name
+        description: Campaign name, trimmed.
+        data_type: text
+      - name: campaign_start_date
+        description: First day of the campaign.
+        data_type: date
+      - name: campaign_end_date
+        description: Last day of the campaign.
+        data_type: date
+      - name: project_id
+        description: Project of the campaign.
+        data_type: integer
+      - name: project_name
+        description: Project name.
+        data_type: text
+      - name: client_code
+        description: Client of the project.
+        data_type: text
+        data_tests:
+          - not_null
